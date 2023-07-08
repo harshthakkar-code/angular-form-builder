@@ -1,0 +1,55 @@
+<div class="not-selected-component p-3" *ngIf="!selectedComponent">
+  <p translate>Item not selected for editing.</p>
+</div>
+<div class="container-fluid px-0" *ngIf="selectedComponent">
+  <ng-container [ngSwitch]="selectedComponent.machineName">
+    <app-text-property
+      *ngSwitchCase="'text'"
+      [component]="selectedComponent"
+    ></app-text-property>
+    <app-picture-property
+      *ngSwitchCase="'picture'"
+      [component]="selectedComponent"
+    ></app-picture-property>
+    <app-checkbox-property
+      *ngSwitchCase="'checkbox'"
+      [component]="selectedComponent"
+    ></app-checkbox-property>
+    <app-spacer-property
+      *ngSwitchCase="'spacer'"
+      [component]="selectedComponent"
+    ></app-spacer-property>
+    <app-textarea-property
+      *ngSwitchCase="'textarea'"
+      [component]="selectedComponent"
+    ></app-textarea-property>
+    <app-radios-property
+      *ngSwitchCase="'radios'"
+      [component]="selectedComponent"
+    ></app-radios-property>
+    <app-dropdown-property
+      *ngSwitchCase="'dropdown'"
+      [component]="selectedComponent"
+    ></app-dropdown-property>
+    <app-input-property
+      *ngSwitchCase="'input'"
+      [component]="selectedComponent"
+    ></app-input-property>
+    <app-button-property
+      *ngSwitchCase="'button'"
+      [component]="selectedComponent"
+    ></app-button-property>
+    <app-separator-property
+      *ngSwitchCase="'separator'"
+      [component]="selectedComponent"
+    ></app-separator-property>
+    <app-social-property
+      *ngSwitchCase="'social'"
+      [component]="selectedComponent"
+    ></app-social-property>
+    <app-uploader-property
+      *ngSwitchCase="'uploader'"
+      [component]="selectedComponent"
+    ></app-uploader-property>
+  </ng-container>
+</div>

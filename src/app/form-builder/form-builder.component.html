@@ -1,0 +1,360 @@
+<ng-template #recursiveList let-elements>
+  <div dndPlaceholderRef class="dndPlaceholder"></div>
+  <div
+    *ngFor="let component of elements"
+    class="selected-component"
+    [ngClass]="{ 'is-selected': component.isSelected }"
+    (click)="setSelectedComponent($event, component)"
+    dndEffectAllowed="move"
+    [dndDraggable]="component"
+    (dndStart)="onDragStart($event)"
+    (dndCopied)="onDragged(component, elements, 'copy')"
+    (dndLinked)="onDragged(component, elements, 'link')"
+    (dndMoved)="onDragged(component, elements, 'move')"
+    (dndCanceled)="onDragged(component, elements, 'none')"
+    (dndEnd)="onDragEnd($event)"
+  >
+    <ng-container [ngSwitch]="component.machineName">
+      <ng-container
+        *ngTemplateOutlet="sectionTpl; context: { $implicit: component }"
+      ></ng-container>
+      <app-text *ngSwitchCase="'text'" [component]="component"></app-text>
+      <app-picture
+        *ngSwitchCase="'picture'"
+        [component]="component"
+      ></app-picture>
+      <app-button *ngSwitchCase="'button'" [component]="component"></app-button>
+      <app-textarea
+        *ngSwitchCase="'textarea'"
+        [component]="component"
+        [formDesign]="subscriptionForm.content_dnd.form_design"
+      ></app-textarea>
+      <app-spacer *ngSwitchCase="'spacer'" [component]="component"></app-spacer>
+      <app-separator
+        *ngSwitchCase="'separator'"
+        [component]="component"
+      ></app-separator>
+      <app-social *ngSwitchCase="'social'" [component]="component"></app-social>
+      <app-checkbox
+        *ngSwitchCase="'checkbox'"
+        [component]="component"
+        [formDesign]="subscriptionForm.content_dnd.form_design"
+      ></app-checkbox>
+      <app-dropdown
+        *ngSwitchCase="'dropdown'"
+        [component]="component"
+        [formDesign]="subscriptionForm.content_dnd.form_design"
+      ></app-dropdown>
+      <app-radios
+        *ngSwitchCase="'radios'"
+        [component]="component"
+        [formDesign]="subscriptionForm.content_dnd.form_design"
+      ></app-radios>
+      <app-input
+        *ngSwitchCase="'input'"
+        [component]="component"
+        [formDesign]="subscriptionForm.content_dnd.form_design"
+      ></app-input>
+      <app-uploader
+        *ngSwitchCase="'uploader'"
+        [component]="component"
+        [formDesign]="subscriptionForm.content_dnd.form_design"
+      ></app-uploader>
+    </ng-container>
+    <div dndDragImageRef class="my_placeholder"></div>
+    <div class="drag-handler rounded-circle" dndHandle>
+      <i class="fas fa-arrows-alt"></i>
+    </div>
+    <div class="container-action-wrapper" *ngIf="component.deletable">
+      <button
+        class="btn btn-sm btn-danger"
+        placement="bottom"
+        ngbTooltip="{{ 'Delete' | translate }}"
+        (click)="deleteComponent($event, component.id)"
+      >
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #sectionTpl let-component>
+  <div class="row no-gutters" [ngSwitch]="component.column">
+    <ng-container *ngSwitchCase="'2-1-3'">
+      <div
+        class="col-4 border border-primary border-dashed section-area"
+        [ngClass]="{
+          'not-added-component': component.addedComponents[0].length === 0
+        }"
+        [dndDropzone]="['nc']"
+        (dndDrop)="onDrop($event, component.addedComponents[0])"
+      >
+        <ng-container
+          *ngTemplateOutlet="
+            recursiveList;
+            context: { $implicit: component.addedComponents[0] }
+          "
+        >
+        </ng-container>
+      </div>
+      <div
+        class="col-8 border border-primary border-dashed section-area"
+        [ngClass]="{
+          'not-added-component': component.addedComponents[1].length === 0
+        }"
+        [dndDropzone]="['nc']"
+        (dndDrop)="onDrop($event, component.addedComponents[1])"
+      >
+        <ng-container
+          *ngTemplateOutlet="
+            recursiveList;
+            context: { $implicit: component.addedComponents[1] }
+          "
+        >
+        </ng-container>
+      </div>
+    </ng-container>
+    <ng-container *ngSwitchCase="'2-3-1'">
+      <div
+        class="col-8 border border-primary border-dashed section-area"
+        [ngClass]="{
+          'not-added-component': component.addedComponents[0].length === 0
+        }"
+        [dndDropzone]="['nc']"
+        (dndDrop)="onDrop($event, component.addedComponents[0])"
+      >
+        <ng-container
+          *ngTemplateOutlet="
+            recursiveList;
+            context: { $implicit: component.addedComponents[0] }
+          "
+        >
+        </ng-container>
+      </div>
+      <div
+        class="col-4 border border-primary border-dashed section-area"
+        [ngClass]="{
+          'not-added-component': component.addedComponents[1].length === 0
+        }"
+        [dndDropzone]="['nc']"
+        (dndDrop)="onDrop($event, component.addedComponents[1])"
+      >
+        <ng-container
+          *ngTemplateOutlet="
+            recursiveList;
+            context: { $implicit: component.addedComponents[1] }
+          "
+        >
+        </ng-container>
+      </div>
+    </ng-container>
+    <ng-container *ngSwitchDefault>
+      <div
+        class="col border border-primary border-dashed section-area"
+        *ngFor="let c of component.addedComponents; let i = index"
+        [ngClass]="{
+          'not-added-component': component.addedComponents[i].length === 0
+        }"
+        [dndDropzone]="['nc']"
+        (dndDrop)="onDrop($event, component.addedComponents[i])"
+      >
+        <ng-container
+          *ngTemplateOutlet="
+            recursiveList;
+            context: { $implicit: component.addedComponents[i] }
+          "
+        >
+        </ng-container>
+      </div>
+    </ng-container>
+  </div>
+</ng-template>
+
+<ng-template #popTitle
+  ><span translate>Add New Section</span>
+  <a class="fas fa-times float-end" (click)="closePopover()"></a
+></ng-template>
+
+<ng-template #popContent>
+  <div class="container-fluid">
+    <div class="row">
+      <div
+        class="col-6 mb-3"
+        *ngFor="let sectionComponent of sectionComponents"
+      >
+        <img
+          [src]="sectionComponent.image"
+          alt=""
+          class="img-fluid"
+          [dndDraggable]="sectionComponent"
+          [dndType]="'se'"
+          (dndStart)="onDragStart($event)"
+          (dndCopied)="onDragged(sectionComponent, addedComponents, 'copy')"
+          (dndLinked)="onDragged(sectionComponent, addedComponents, 'link')"
+          (dndMoved)="onDragged(sectionComponent, addedComponents, 'move')"
+          (dndCanceled)="onDragged(sectionComponent, addedComponents, 'none')"
+          (dndEnd)="onDragEnd($event)"
+        />
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<header>
+  <nav
+    class="subscription-form-content-nav fixed-top d-flex align-items-center"
+  >
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-3 col-md-3 text-white">
+          <i class="fas fa-cubes me-2"></i>
+          <span translate>ANGULAR FORM BUILDER</span>
+        </div>
+        <div class="col-9 col-md-9 text-end p-1">
+          <button class="btn btn-fix ms-2" (click)="generateHtml()">
+            <i class="far fa-file-code me-2"></i>
+            <span translate>Generate HTML</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<section>
+  <div class="p-0 rounded" id="form-builder-wrapper">
+    <div *ngIf="subscriptionForm">
+      <div class="construct-container d-flex justify-content-between px-3">
+        <div class="panel-elements pt-0">
+          <div class="email-structure">
+            <div
+              class="component section-component rounded"
+              [ngbPopover]="popContent"
+              [popoverTitle]="popTitle"
+              placement="right"
+              container="body"
+              [autoClose]="false"
+              triggers="manual"
+              #popover="ngbPopover"
+              (click)="popover.open()"
+            >
+              <p><i type="bs-5869" class="cIcon cIcon-bs-5869">
+                <svg xmlns="http://www.w3.org/2000/svg" width="2em"  height="2em" fill="blue" viewBox="0 0 1024 1024"><path d="M384 64v192H64V64h320zM64 0a64 64 0 0 0-64 64v192a64 64 0 0 0 64 64h320a64 64 0 0 0 64-64V64a64 64 0 0 0-64-64H64z m896 768v192h-320v-192h320z m-320-64a64 64 0 0 0-64 64v192a64 64 0 0 0 64 64h320a64 64 0 0 0 64-64v-192a64 64 0 0 0-64-64h-320zM384 512v448H64V512h320zM64 448a64 64 0 0 0-64 64v448a64 64 0 0 0 64 64h320a64 64 0 0 0 64-64V512a64 64 0 0 0-64-64H64z m896-384v448h-320V64h320z m-320-64a64 64 0 0 0-64 64v448a64 64 0 0 0 64 64h320a64 64 0 0 0 64-64V64a64 64 0 0 0-64-64h-320z"></path></svg>
+              </i></p>
+              <span translate>Section</span>
+            </div>
+            <div
+              class="component rounded"
+              *ngFor="let component of components"
+              [dndDraggable]="component"
+              [dndType]="'nc'"
+              (dndStart)="onDragStart($event)"
+              (dndCopied)="onDragged(component, addedComponents, 'copy')"
+              (dndLinked)="onDragged(component, addedComponents, 'link')"
+              (dndMoved)="onDragged(component, addedComponents, 'move')"
+              (dndCanceled)="onDragged(component, addedComponents, 'none')"
+              (dndEnd)="onDragEnd($event)"
+            >
+            <p ><i type="cb-7975" class="cIcon cIcon-cb-7975">
+              <svg *ngIf="component.name == 'Button'"  xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="blue" viewBox="0 0 1024 1024"><path d="M288 480h448v64H288z"></path><path d="M896 704H128a64.1 64.1 0 0 1-64-64v-256a64.1 64.1 0 0 1 64-64h768a64.1 64.1 0 0 1 64 64v256a64.1 64.1 0 0 1-64 64ZM128 384v256h768v-256Z"></path></svg>
+                <svg *ngIf="component.name == 'Input'" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="blue" viewBox="0 0 1024 1024"><path d="M320 128a32 32 0 0 1 32-32c55.2 0 100.7 18.4 131.8 36.2 11.1 6.3 20.5 12.7 28.2 18.3 7.6-5.6 17-12 28.2-18.3A266.6 266.6 0 0 1 672 96a32 32 0 0 1 0 64c-40.8 0-75.3 13.6-100.1 27.8a223.4 223.4 0 0 0-27.9 18.8V480H576a32 32 0 0 1 0 64h-32v273.4c6.4 5.1 15.9 12 27.9 18.8 24.8 14.1 59.3 27.8 100.1 27.8a32 32 0 0 1 0 64 266.6 266.6 0 0 1-131.8-36.2A291.9 291.9 0 0 1 512 873.6a291.9 291.9 0 0 1-28.2 18.2 266.6 266.6 0 0 1-131.8 36.3 32 32 0 0 1 0-64c40.8 0 75.3-13.6 100.1-27.8 12-6.8 21.4-13.7 27.9-18.8V544H448a32 32 0 0 1 0-64h32V206.6a223.4 223.4 0 0 0-27.9-18.8A202.6 202.6 0 0 0 352 160 32 32 0 0 1 320 128z"></path><path d="M640 320h256a64 64 0 0 1 64 64v256a64 64 0 0 1-64 64h-256v64h256a128 128 0 0 0 128-128V384a128 128 0 0 0-128-128h-256v64zM384 320V256H128a128 128 0 0 0-128 128v256a128 128 0 0 0 128 128h256v-64H128a64 64 0 0 1-64-64V384a64 64 0 0 1 64-64h256z"></path></svg>
+                <svg *ngIf="component.name == 'Textarea'" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="blue" viewBox="0 0 1024 1024"><path d="M0 288A160 160 0 0 1 160 128h704A160 160 0 0 1 1024 288v448a160 160 0 0 1-160 160h-704A160 160 0 0 1 0 736v-448zM160 192A96 96 0 0 0 64 288v448A96 96 0 0 0 160 832h704a96 96 0 0 0 96-96v-448A96 96 0 0 0 864 192h-704z m694.7 297.3a32 32 0 0 1 0 45.4l-192 192a32 32 0 0 1-45.4-45.4l192-192a32 32 0 0 1 45.4 0z m0 160a32 32 0 0 1 0 45.4l-32 32a32 32 0 0 1-45.4-45.4l32-32a32 32 0 0 1 45.4 0z"></path></svg>
+                <svg *ngIf="component.name == 'Dropdown'" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="blue" viewBox="0 0 1024 1024"><path d="M832 192V64H64v320h288v576h608V192ZM128 320V128h640v64H352v128Zm768 576H416V256h480Z"></path><path d="M480 352h64v64h-64z m128 0h224v64h-224z m-128 192h64v64h-64z m128 0h224v64h-224z m-128 192h64v64h-64z m128 0h224v64h-224z"></path></svg>
+                <svg *ngIf="component.name == 'Radio buttons'" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="blue" viewBox="0 0 1024 1024"><path d="M512 810.7C347.1 810.7 213.3 676.9 213.3 512 213.3 347.1 347.1 213.3 512 213.3 676.9 213.3 810.7 347.1 810.7 512 810.5 676.9 676.9 810.5 512 810.7ZM512 298.7C394.2 298.7 298.7 394.2 298.7 512 298.7 629.8 394.2 725.3 512 725.3 629.8 725.3 725.3 629.8 725.3 512 725.3 394.2 629.8 298.7 512 298.7ZM512 640C441.3 640 384 582.7 384 512 384 441.3 441.3 384 512 384 582.7 384 640 441.3 640 512 640 545.9 626.5 578.5 602.5 602.5 578.5 626.5 545.9 640 512 640Z"></path></svg>
+                <svg *ngIf="component.name == 'Checkbox'" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="blue" viewBox="0 0 1024 1024"><path d="M307.2 153.6a153.6 153.6 0 0 0-153.6 153.6v409.6a153.6 153.6 0 0 0 153.6 153.6h409.6a153.6 153.6 0 0 0 153.6-153.6V307.2a153.6 153.6 0 0 0-153.6-153.6H307.2ZM204.8 307.2a102.4 102.4 0 0 1 102.4-102.4h409.6a102.4 102.4 0 0 1 102.4 102.4v409.6a102.4 102.4 0 0 1-102.4 102.4H307.2a102.4 102.4 0 0 1-102.4-102.4V307.2Zm504.5 94.9a25.6 25.6 0 0 0-36.2-36.2L435.2 603.8l-84.3-84.3a25.6 25.6 0 0 0-36.2 36.2l102.4 102.4a25.6 25.6 0 0 0 36.2 0l256-256Z"></path></svg>
+                <svg *ngIf="component.name == 'Text'" width="2em" height="2em" fill="blue" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18"><path d="M6.5,3H3V6.5H4V4H6.5Z" transform="translate(-3 -3)"></path><path d="M8.5,4V3H11V4Z" transform="translate(-3 -3)"></path><path d="M13,4h2.5V3H13Z" transform="translate(-3 -3)"></path><path d="M17.5,3V4H20V6.5h1V3Z" transform="translate(-3 -3)"></path><path d="M21,8.5H20V11h1Z" transform="translate(-3 -3)"></path><path d="M21,13H20v2.5h1Z" transform="translate(-3 -3)"></path><path d="M21,17.5H20V20H17.5v1H21Z" transform="translate(-3 -3)"></path><path d="M15.5,21V20H13v1Z" transform="translate(-3 -3)"></path><path d="M11,21V20H8.5v1Z" transform="translate(-3 -3)"></path><path d="M6.5,21V20H4V17.5H3V21Z" transform="translate(-3 -3)"></path><path d="M3,15.5H4V13H3Z" transform="translate(-3 -3)"></path><path d="M3,11H4V8.5H3Z" transform="translate(-3 -3)"></path><path d="M11,9.5H7v-2H17v2H13v7H11Z" transform="translate(-3 -3)"></path></svg>
+                <svg *ngIf="component.name == 'Picture'" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="blue" viewBox="0 0 1024 1024"><path d="M96 896a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h832a32 32 0 0 1 32 32v704a32 32 0 0 1-32 32H96z m315.5-228.5l-68.9-68.9a32 32 0 0 0-45.3 0L128 768.1h778.7l-242.1-290.6a32 32 0 0 0-49.2 0L458.8 665.4a32 32 0 0 1-47.3 2.1zM256 384a96 96 0 1 0 192.1-0.1A96 96 0 0 0 256 384z"></path></svg>
+                <svg *ngIf="component.name == 'Spacer'" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="blue" viewBox="0 0 1024 1024"><path d="M307.2 51.2a102.4 102.4 0 0 0-102.4 102.4v230.4a102.4 102.4 0 0 0 102.4 102.4h409.6a102.4 102.4 0 0 0 102.4-102.4V153.6a102.4 102.4 0 0 0-102.4-102.4H307.2ZM256 153.6a51.2 51.2 0 0 1 51.2-51.2h409.6a51.2 51.2 0 0 1 51.2 51.2v230.4a51.2 51.2 0 0 1-51.2 51.2H307.2a51.2 51.2 0 0 1-51.2-51.2V153.6Zm51.2 384a102.4 102.4 0 0 0-102.4 102.4V870.4a102.4 102.4 0 0 0 102.4 102.4h409.6a102.4 102.4 0 0 0 102.4-102.4v-230.4a102.4 102.4 0 0 0-102.4-102.4H307.2Zm-51.2 102.4a51.2 51.2 0 0 1 51.2-51.2h409.6a51.2 51.2 0 0 1 51.2 51.2V870.4a51.2 51.2 0 0 1-51.2 51.2H307.2a51.2 51.2 0 0 1-51.2-51.2v-230.4Z"></path></svg>
+                <svg *ngIf="component.name == 'Uploader'" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="blue" viewBox="0 0 1024 1024"><path d="M282 85.9A353.9 353.9 0 0 1 512 0c172.2 0 315.1 128 330.6 293.1C944.5 307.5 1024 392.8 1024 497.5 1024 612.4 928.1 704 812 704H640a32 32 0 0 1 0-64h172C894.7 640 960 575.2 960 497.5c0-77.8-65.3-142.6-148-142.6h-32v-32C780 180.8 661 64 512 64a289.9 289.9 0 0 0-188.2 70.4c-48.4 41.7-73.8 92-73.8 131.5v28.7l-28.5 3.1C132.1 307.5 64 380.9 64 468.4 64 562.2 142.7 640 242 640H384a32 32 0 0 1 0 64H242C109.3 704 0 599.4 0 468.4c0-112.8 81-206.3 188.3-230 9.2-55.2 44.7-110.3 93.7-152.5z"></path><path d="M489.3 265.3a32 32 0 0 1 45.4 0l192 192a32 32 0 0 1-45.4 45.4L544 365.2V928a32 32 0 0 1-64 0V365.2L342.7 502.7a32 32 0 1 1-45.4-45.4l192-192z"></path></svg>
+            </i> </p> 
+              <span translate>{{ component.name }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-body flex-grow-1">
+          <div
+            class="email-body d-flex content-droppable-zone {{
+              dragStartClass
+            }} dndList"
+            [ngClass]="{
+              'align-items-start':
+                subscriptionForm.content_dnd.form_design.page_alignment === 'top',
+              'align-items-center':
+                subscriptionForm.content_dnd.form_design.page_alignment === 'center',
+              'align-items-end':
+                subscriptionForm.content_dnd.form_design.page_alignment === 'bottom'
+            }"
+            [ngStyle]="{
+              'font-family':
+                subscriptionForm.content_dnd.form_design.font_family,
+              'font-size':
+                subscriptionForm.content_dnd.form_design.font_size + 'px',
+              background:
+                subscriptionForm.content_dnd.form_design.background_color,
+              padding:
+                subscriptionForm.content_dnd.form_design.page_paddings + 'px'
+            }"
+          >
+            <div
+              class="form-container mx-auto"
+              dndDropzone
+              (dndDrop)="
+                onDrop($event, subscriptionForm.content_dnd.added_components)
+              "
+              [ngStyle]="{
+                width: subscriptionForm.content_dnd.form_design.fullWidth
+                  ? '100%'
+                  : subscriptionForm.content_dnd.form_design.width + 'px',
+                'background-color':
+                  subscriptionForm.content_dnd.form_design
+                    .container_background_color,
+                'border-radius':
+                  subscriptionForm.content_dnd.form_design.rounded_corners +
+                  'px',
+                padding:
+                  subscriptionForm.content_dnd.form_design.form_paddings + 'px',
+                border:
+                  'solid ' +
+                  subscriptionForm.content_dnd.form_design.form_border_width +
+                  'px ' +
+                  subscriptionForm.content_dnd.form_design.form_border_color
+              }"
+            >
+              <ng-container
+                *ngTemplateOutlet="
+                  recursiveList;
+                  context: {
+                    $implicit: subscriptionForm.content_dnd.added_components
+                  }
+                "
+              ></ng-container>
+            </div>
+          </div>
+        </div>
+        <div class="panel-options property-column">
+          <div class="property-column-inner">
+            <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs">
+              <li [ngbNavItem]="1" id="tab-current-element">
+                <a ngbNavLink translate>Current Element</a>
+                <ng-template ngbNavContent>
+                  <app-current-element
+                    [selectedComponent]="selectedComponent"
+                  ></app-current-element>
+                </ng-template>
+              </li>
+              <li [ngbNavItem]="2" id="tab-form-design">
+                <a ngbNavLink translate>Form Design</a>
+                <ng-template ngbNavContent>
+                  <app-form-design-property
+                    [formDesign]="subscriptionForm.content_dnd.form_design"
+                  ></app-form-design-property>
+                </ng-template>
+              </li>
+            </ul>
+            <div [ngbNavOutlet]="nav" class="mt-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
